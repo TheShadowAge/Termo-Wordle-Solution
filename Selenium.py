@@ -270,22 +270,28 @@ def solucionar_multiplos(shadow, driver, dicio, input_field, how_many):
 
             denovo = True
             while denovo and not(any(certo)) and len(palavras) != 0:
-                palavra = palavras.pop(palavras.index(random.choice(palavras)))
+                let = [i for i in letters_count if i[1] > 0]
+                let = [i[0] for i in let]
+                palavres = []
+                for i in palavras:
+                    word_without_accents = ""
+                    for letter in i:
+                        word_without_accents += accented_letters[letter]
+                    for j in range(5):
+                        if word_without_accents[j] not in let:
+                            break
+                        if j == 4:
+                            palavres.append(i)
+                if palavres == []:
+                    palavres = palavras
+                palavra = palavres[palavres.index(random.choice(palavres))]
                 word_without_accents = ""
                 for letter in palavra:
                     word_without_accents += accented_letters[letter]
                 input_field.send_keys(word_without_accents)
                 input_field.send_keys(Keys.ENTER)
-                if check_errada(wrong_checker):
-                    denovo = True
-                    input_field.send_keys(Keys.BACKSPACE)
-                    input_field.send_keys(Keys.BACKSPACE)
-                    input_field.send_keys(Keys.BACKSPACE)
-                    input_field.send_keys(Keys.BACKSPACE)
-                    input_field.send_keys(Keys.BACKSPACE)
-                else:
-                    denovo = False
-                    sair = True
+                denovo = False
+                sair = True
             for i in range(how_many):
                 print(len(lista[i]))
             for i in range(how_many):
