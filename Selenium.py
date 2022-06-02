@@ -111,6 +111,63 @@ def counter(how_many, lista, ter):
 
     return letters_count
 
+def choose_word(lista, palavras):
+    big_list = []
+    lenght = len(palavras)
+    
+
+    leng = len(lista)
+    
+    for i in range(leng):
+        lenghgh = len(lista[i])
+        for j in range(lenghgh):
+            if lista[i][j] not in big_list and lenghgh > 1:
+                big_list.append(lista[i][j])
+    
+    lenght_big = len(big_list)
+
+    informacao = [[[] for i in range(4)] for j in range(lenght_big)]
+    
+    for i in range(lenght_big):
+        for k in big_list[i]:
+            informacao[i][0].append(k)
+    
+    matrix = []
+    
+    big_list = []
+    list_len = []
+    for i in range(lenght):
+        list_len.append(len(lista[i]))
+
+    big_list = palavras[list_len.index(max(list_len))]
+        
+
+    lenght_big = len(big_list)
+
+    for i in range(lenght_big):
+        aux_list = []
+        for j in range(lenght_big):
+            liste, info = pesquisa(big_list[j], [], informacao[j])
+            aux_list.append(len(liste))
+        matrix.append(aux_list)
+    
+
+    #turn matrix rows to columns and columns to rows
+    matrix = list(zip(*matrix))
+    for i in range(leng):
+        if i == 0:
+            index = 0
+        else:
+            if sum(matrix[i])/lenght_big > sum(matrix[index])/lenght_big:
+                index = i
+    
+    if len(matrix) == 0:
+        return None
+
+    return big_list[index]
+        
+    
+    
 
 def solucionar_multiplos(shadow, driver, dicio, input_field, how_many):
     lista = []
@@ -119,7 +176,8 @@ def solucionar_multiplos(shadow, driver, dicio, input_field, how_many):
 
     cont = -1
 
-    wrong_checker = shadow.find_element('div[aria-live="assertive"]')
+    right_checker = shadow.find_element('wc-notify')
+    
 
     informacao = [[] for i in range(how_many)]
     for i in range(how_many):
@@ -130,6 +188,12 @@ def solucionar_multiplos(shadow, driver, dicio, input_field, how_many):
     certo = [False for i in range(how_many)]
     check = [False for i in range(how_many)]
     while sum([len(lista[i]) for i in range(how_many)]) != how_many:
+        time.sleep(1)
+        
+        print(right_checker.text)
+        if right_checker.text != '':
+            return
+        
         cont += 1
         time.sleep(2)
         row_board = []
@@ -153,169 +217,21 @@ def solucionar_multiplos(shadow, driver, dicio, input_field, how_many):
         
         for i in range(how_many):
             lista[i], informacao[i] = pesquisa(lista[i], atuais[i], informacao[i])
-        
-        print(informacao)
+        print(sum([len(lista[i]) for i in range(how_many)]))
+        print(how_many)
 
-        ter = []
-
-        lenghtt = []
+        palavra = choose_word(lista, lista)
+        word_without_accents = ""
+        for letter in palavra:
+            word_without_accents += accented_letters[letter]
+        input_field.send_keys(word_without_accents)
+        input_field.send_keys(Keys.ENTER)
         for i in range(how_many):
-            lenghtt.append(len(lista[i]))
-
-        indice = lenghtt.index(max(lenghtt))
-
-
-        for j in informacao[indice][0]:
-            ter.append(j)
-        for j in informacao[indice][1]:
-            ter.append(j)
-
-        ter = []
+            print(len(lista[i]))
         for i in range(how_many):
-            if not(check[i]):
-                for j in informacao[i][0]:
-                    ter.append(j)
-                for j in informacao[i][1]:
-                    ter.append(j)
-
-        quant_letras = 3
-        palavras = ['']
-        sair = False
-        
-        while len(palavras) != 0 and not(sair):
-            passou = 0
-            passou_ter = 0
-            this = False
-            passou_la = 0
-            while (len(palavras) == 0 or palavras == ['']) and not(any(certo)):
-                
-                letters_count = counter(how_many, lista, ter)
-
-                aux_inf = [[] for i in range(4)]
-                aux_inf[2] = [[] for i in range(5)]
-                aux_inf[3] = [[] for i in range(5)]
-
-                letras = letters_count[:5]
-
-                letras_selecionadas = [i[0] for i in letras]
-                letters = []
-                letters.append(letras_selecionadas.pop(0))
-                if not(this):
-                    for i in letras_selecionadas:
-                        letters.append(i)
-                        this = True
-                else:
-                    if passou_la == 0:
-                        letters.append(letras_selecionadas.pop(0))
-                        letters.append(letras_selecionadas.pop(0))
-                        letters.append(letras_selecionadas.pop(0))
-                        letters.append(letras_selecionadas.pop(0))
-                        passou_la += 1
-                    elif passou_la == 1:
-                        letters.append(letras_selecionadas.pop(0))
-                        letters.append(letras_selecionadas.pop(0))
-                        letters.append(letras_selecionadas.pop(0))
-                        passou_la += 1
-                    elif passou_la == 2:
-                        letters.append(letras_selecionadas.pop(0))
-                        letters.append(letras_selecionadas.pop(0))
-                        letters.append(letras_selecionadas.pop(1))
-                        passou_la += 1
-                    elif passou_la == 3:
-                        letters.append(letras_selecionadas.pop(0))
-                        letters.append(letras_selecionadas.pop(1))
-                        letters.append(letras_selecionadas.pop(1))
-                        passou_la += 1
-                    elif passou_la == 4:
-                        letters.append(letras_selecionadas.pop(0))
-                        letters.append(letras_selecionadas.pop(0))
-                        passou_la += 1
-                    elif passou_la == 5:
-                        letters.append(letras_selecionadas.pop(0))
-                        letters.append(letras_selecionadas.pop(1))
-                        passou_la += 1
-                    elif passou_la == 6:
-                        letters.append(letras_selecionadas.pop(0))
-                        letters.append(letras_selecionadas.pop(2))
-                        passou_la += 1
-                    elif passou_la == 7:
-                        letters.append(letras_selecionadas.pop(1))
-                        letters.append(letras_selecionadas.pop(1))
-                        letters.append(letras_selecionadas.pop(1))
-                        passou_la += 1
-                    elif passou_la == 8:
-                        letters.append(letras_selecionadas.pop(1))
-                        letters.append(letras_selecionadas.pop(1))
-                        passou_la += 1
-                    elif passou_la == 9:
-                        letters.append(letras_selecionadas.pop(0))
-                        passou_la += 1
-                    elif passou_la == 10:
-                        letters.append(letras_selecionadas.pop(1))
-                        letters.append(letras_selecionadas.pop(2))
-                        passou_la += 1
-                    else:
-                        ter = []
-                        for i in range(how_many):
-                            for j in informacao[i][0]:
-                                ter.append(j)
-                        passou_la = 0
-
-                print(letras_selecionadas)
-                print(letters)
-
-                aux_inf[0] = letters
-
-                palavras, aux = pesquisa(dicio, [], aux_inf)
-
-            denovo = True
-            while denovo and not(any(certo)) and len(palavras) != 0:
-                let = [i for i in letters_count if i[1] > 0]
-                let = [i[0] for i in let]
-                palavres = []
-                for i in palavras:
-                    word_without_accents = ""
-                    for letter in i:
-                        word_without_accents += accented_letters[letter]
-                    for j in range(5):
-                        if word_without_accents[j] not in let:
-                            break
-                        if j == 4:
-                            palavres.append(i)
-                if palavres == []:
-                    palavres = palavras
-                palavra = palavres[palavres.index(random.choice(palavres))]
-                word_without_accents = ""
-                for letter in palavra:
-                    word_without_accents += accented_letters[letter]
-                input_field.send_keys(word_without_accents)
-                input_field.send_keys(Keys.ENTER)
-                denovo = False
-                sair = True
-            for i in range(how_many):
-                print(len(lista[i]))
-            for i in range(how_many):
-                if len(lista[i]) == 1 and check[i] == False:
-                    certo[i] = True
-            print(certo)
-            if any(certo):
-                    sair = True
-        length = [len(lista[i]) for i in range(how_many)]
+            if len(lista[i]) == 1 and check[i] == False:
+                certo[i] = True
         time.sleep(1)
-        while True in certo:
-            for i in range(how_many):
-                if certo[i] == True:
-                    time.sleep(2)
-                    word_without_accents = ''
-
-                    for letter in lista[i][0]:
-                        word_without_accents += accented_letters[letter]
-                    input_field.send_keys(word_without_accents)
-                    input_field.send_keys(Keys.ENTER)
-
-                    certo[i] = False
-                    check[i] = True
-            cont += 1
 
 def solucionar(shadow, dicio, input_field):
     lista = deepcopy(dicio)
