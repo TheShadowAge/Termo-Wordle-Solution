@@ -392,3 +392,4 @@ solucionar_multiplos(shadow, driver, dicio, element, 4)
 time.sleep(5)
 
 driver.quit()
+
