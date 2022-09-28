@@ -62,6 +62,8 @@ def pesquisa(dicio, atuais, informacao):
         for i in range(5):
             if atuais[i][0] == 0 and atuais[i][1] not in tem:
                 nao_tem.append(atuais[i][1])
+            elif atuais[i][0] == 0 and atuais[i][1] in tem:
+                nao[i].append(atuais[i][1])
             elif atuais[i][0] == 1:
                 tem.append(atuais[i][1])
                 nao[i].append(atuais[i][1])
@@ -115,6 +117,10 @@ def choose_word(lista, palavras):
     big_list = []
     lenght = len(palavras)
     
+    for i in palavras:
+        if len(i) == 1:
+            return i[0]
+        
 
     leng = len(lista)
     
@@ -126,6 +132,9 @@ def choose_word(lista, palavras):
     
     lenght_big = len(big_list)
 
+    if lenght_big == 0:
+        return lista[0][0]
+
     informacao = [[[] for i in range(4)] for j in range(lenght_big)]
     
     for i in range(lenght_big):
@@ -134,13 +143,9 @@ def choose_word(lista, palavras):
     
     matrix = []
     
-    big_list = []
     list_len = []
     for i in range(lenght):
         list_len.append(len(lista[i]))
-
-    big_list = palavras[list_len.index(max(list_len))]
-        
 
     lenght_big = len(big_list)
 
@@ -213,14 +218,31 @@ def solucionar_multiplos(shadow, driver, dicio, input_field, how_many):
                     info.append(verificar_letra(aux))
             atuais.append(info)
         
+        for i in range(len(atuais)):
+            listinhem = []
+            contar = 0
+            for j in range(5):
+                if len(atuais[i]) != 0 and atuais[i][j][0] == 2:
+                    contar += 1
+            if contar == 5:
+                certo[i] = True
+                continue
+
+
         print(atuais)
         
         for i in range(how_many):
             lista[i], informacao[i] = pesquisa(lista[i], atuais[i], informacao[i])
         print(sum([len(lista[i]) for i in range(how_many)]))
         print(how_many)
-
-        palavra = choose_word(lista, lista)
+        listata = []
+        for i in range(how_many):
+            if len(lista[i]) == 1 and certo[i] == False:
+                check[i] = True
+                listata.append(lista[i])
+            elif len(lista[i]) > 1:
+                listata.append(lista[i])
+        palavra = choose_word(listata, listata)
         word_without_accents = ""
         for letter in palavra:
             word_without_accents += accented_letters[letter]
@@ -228,9 +250,6 @@ def solucionar_multiplos(shadow, driver, dicio, input_field, how_many):
         input_field.send_keys(Keys.ENTER)
         for i in range(how_many):
             print(len(lista[i]))
-        for i in range(how_many):
-            if len(lista[i]) == 1 and check[i] == False:
-                certo[i] = True
         time.sleep(1)
 
 def solucionar(shadow, dicio, input_field):
@@ -327,7 +346,7 @@ PATH = "C:\Program Files (x86)\chromedriver.exe"
 driver = webdriver.Chrome(PATH)
 shadow = Shadow(driver)
 
-driver.get("https://term.ooo/")
+driver.get("https://term.ooo/4")
 
 time.sleep(2)
 
@@ -339,7 +358,7 @@ ac.move_to_element(elem).click().perform()
 
 time.sleep(2)
 
-element = driver.find_element_by_tag_name("body")
+'''element = driver.find_element_by_tag_name("body")
 
 element.send_keys("serao")
 
@@ -376,7 +395,7 @@ quarteto = shadow.find_element('a[id="quatro"]')
 quarteto.click()
 
 time.sleep(1)
-
+'''
 element = driver.find_element_by_tag_name("body")
 
 elem = driver.find_element_by_tag_name("html")
